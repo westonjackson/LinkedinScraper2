@@ -23,27 +23,31 @@ import javax.swing.JTextPane;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
+import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
 
 public class ScraperGUI {
 public static void main(String args[]){
 		
-		JTextField search = new JTextField("Type in what you want to search for!");
-		
+		JTextField company = new JTextField("Goldman Sachs");
+		JTextField keyWords = new JTextField("Asset Management");
 		//create centered text pane
 		JTextPane textpane = new JTextPane();
-		textpane.setText("Directions:\n1. Select number of Google pages to search\n2. Type in qualifications for search\n3. Click submit and open Candidates.xls\n");
+		textpane.setText("\n\nDirections:\n1. Select number of profiles to receive\n"
+				+ "2. Type in company and keywords for search\n"
+				+ "3. Click submit and open Candidates.xls\n"
+				+ "\n\t****Profiles received approximately equals seconds of runtime!****\t\n\n");
 		StyledDocument doc = textpane.getStyledDocument();
 		SimpleAttributeSet center = new SimpleAttributeSet();
 		StyleConstants.setAlignment(center, StyleConstants.ALIGN_CENTER);
 		doc.setParagraphAttributes(0, doc.getLength(), center, false);
 		
 		//page search options
-		String[] options = {"(# Pages)","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"};
+		String[] options = {"10","20","30","40","50","100","150","200"};
 		
 		JComboBox box = new JComboBox(options);
 		
 		JButton submit = new JButton("Submit");
-		submit.addActionListener(new jibeListener(search,textpane,box));
+		submit.addActionListener(new scrapeListener(company,keyWords,box));
 		
 		JFrame frame = new JFrame("LinkedIn Scraper");
 		
@@ -51,7 +55,8 @@ public static void main(String args[]){
 		JPanel panel = new JPanel();
 		panel.setLayout(new FlowLayout());
 		panel.add(box);
-		panel.add(search);
+		panel.add(company);
+		panel.add(keyWords);
 		panel.add(submit);
 		
 		//create frame
@@ -65,17 +70,17 @@ public static void main(String args[]){
 		}
 		
 		//Action listener subclass for Scraper buttons
-		public static class jibeListener implements ActionListener{
+		public static class scrapeListener implements ActionListener{
 			
 			private JTextField search;
-			private JTextPane area;
+			private JTextField keyWords;
 			private JComboBox box;
 			
 			//Initialize variables
-			public jibeListener(JTextField search,JTextPane area,JComboBox box)
+			public scrapeListener(JTextField search, JTextField keyWords, JComboBox box)
 			{
 				this.search = search;
-				this.area = area;
+				this.keyWords = keyWords;
 				this.box = box;
 				
 			}
@@ -88,15 +93,21 @@ public static void main(String args[]){
 					try{
 					String number = (String)box.getSelectedItem();
 					
-					if(number != "(# Pages)"){
-						int num = Integer.parseInt((String)box.getSelectedItem());
-					    Scraper scraper = new Scraper(search.getText(), num);
+					if(number != "(# Profiles)"){
+						int num = Integer.parseInt((String)box.getSelectedItem())/10;
+					    Scraper scraper = new Scraper(search.getText(), keyWords.getText(), num);
 					}
 					
 					}
 					catch(IOException e1){
-						search.setText("There was an input/output error");
+						search.setText("ERROR!");
+						keyWords.setText("There was an input/output error");
 					}
+					
+					catch (FailingHttpStatusCodeException e1) {
+						search.setText("ERROR!");
+						keyWords.setText("Google caught the program! Try again in an hour or tomorrow.");
+					} 
 				}
 			}
 		
