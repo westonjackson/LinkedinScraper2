@@ -50,6 +50,7 @@ public class Scraper{
 
 		//open web client
 		final WebClient wc = new WebClient();
+		wc.getOptions().setThrowExceptionOnScriptError(false);
 		HtmlPage page = wc.getPage("http://www.google.com"); 
 
 		//get google search box
